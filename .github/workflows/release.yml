@@ -22,7 +22,7 @@ jobs:
 
       - name: Build (Release)
         shell: pwsh
-        run: & $env:MSBUILD_EXE MyApp.sln /p:Configuration=Release /nologo /verbosity:minimal
+        run: "& $env:MSBUILD_EXE MyApp.sln /p:Configuration=Release /nologo /verbosity:minimal"
 
       - name: Package
         shell: pwsh
