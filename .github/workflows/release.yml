@@ -1,0 +1,30 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build (Release)
+        run: msbuild MyApp.sln /p:Configuration=Release /nologo /verbosity:minimal
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF -replace '^refs/tags/', ''
+          $out = Join-Path $env:GITHUB_WORKSPACE 'MyApp/bin/Release'
+          $files = Get-ChildItem $out -File | Where-Object { $_.Extension -eq '.exe' -or $_.Extension -eq '.config' }
+          Compress-Archive -Path $files.FullName -DestinationPath "MyApp-$tag.zip"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MyApp-*.zip
+          fail_on_unmatched_files: true
